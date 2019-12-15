@@ -25,10 +25,15 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'commons-io:commons-io:2.6'
+    implementation 'commons-codec:commons-codec:1.13'
+	
+
 	
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
+	testCompile group: 'junit', name: 'junit', version: '4.12' 
 }
 
 test {
