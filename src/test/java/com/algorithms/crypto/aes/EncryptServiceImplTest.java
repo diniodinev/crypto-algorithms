@@ -5,8 +5,6 @@ import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.Base64;
-import java.util.Base64.Decoder;
 
 import org.apache.commons.codec.binary.Hex;
 import org.junit.Before;
@@ -21,9 +19,8 @@ public class EncryptServiceImplTest {
 	AesEncryptServiceImpl encryptServiceImpl;
 	private File file;
 
-	//salt=C29CA36EDE523E87
-	//		key=E8E2F6828F870C130D06A644C65728F1
-	//		iv =848C35D3149B7CDC5CE20F7C8E8105A6
+	//openssl enc -aes-128-cbc -k secret -P -md sha1
+
 
 	@Before
 	public void setUp() {
@@ -34,7 +31,7 @@ public class EncryptServiceImplTest {
 	public void encryptAndDecryptFileSuccessfullyWithAes() throws Exception {
 		String originalContent = "foobar";
 		file = ResourceUtils.getFile("classpath:certs/aes/aes.key");
-		//Open SSl generate
+		//Open SSl generate hex encoded key. Which needs to be converted to 
 		byte[] keyBytes = Hex.decodeHex(new String(Files.readAllBytes(file.toPath())));
 		encryptServiceImpl = new AesEncryptServiceImpl();
 
