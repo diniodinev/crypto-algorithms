@@ -4,58 +4,43 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.util.Base64;
+import java.util.Base64.Decoder;
 
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.util.Base64Util;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.runners.JUnit4;
 import org.springframework.util.ResourceUtils;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(JUnit4.class)
 public class EncryptServiceImplTest {
 
-    @InjectMocks
-    EncryptServiceImpl EncryptServiceImpl;
-    private File file;
-    private String keyText = "E312F4F66929D72F09981BDD47D63E7805C99281C51804F1EC239283F3F2A882";
+	AesEncryptServiceImpl encryptServiceImpl;
+	private File file;
 
-    //salt=554EAC0ADA418EB9
-    //        key=E312F4F66929D72F09981BDD47D63E78
-    //        iv =4EA5319DA5C50E46589216476E528113
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-    }
+	//salt=C29CA36EDE523E87
+	//		key=E8E2F6828F870C130D06A644C65728F1
+	//		iv =848C35D3149B7CDC5CE20F7C8E8105A6
 
-    @Test
-    public void whenEncryptingIntoFile_andDecryptingFileAgain_thenOriginalStringIsReturned() throws Exception {
-        String originalContent = "foobar";
-        file = ResourceUtils.getFile("classpath:certs/aes/aes.key");
-    
-        byte[] key = javax.xml.bind.DatatypeConverter.parseHexBinary(keyText);
-        byte[] hex = Hex.decodeHex(keyText.toCharArray());
-        SecretKey secretKey = new SecretKeySpec(hex,  "AES");
+	@Before
+	public void setUp() {
+		encryptServiceImpl = new AesEncryptServiceImpl();
+	}
 
-        int maxKeyLen = Cipher.getMaxAllowedKeyLength("AES");
-        System.out.println("MaxAllowedKeyLength=[" + maxKeyLen + "].");
-        
-        FileEncrypterDecrypter fileEncrypterDecrypter = new FileEncrypterDecrypter(secretKey, "AES/CBC/PKCS5Padding");
-        fileEncrypterDecrypter.encrypt(originalContent, "baz.enc");
+	@Test
+	public void encryptAndDecryptFileSuccessfullyWithAes() throws Exception {
+		String originalContent = "foobar";
+		file = ResourceUtils.getFile("classpath:certs/aes/aes.key");
+		//Open SSl generate
+		byte[] keyBytes = Hex.decodeHex(new String(Files.readAllBytes(file.toPath())));
+		encryptServiceImpl = new AesEncryptServiceImpl();
 
-        String decryptedContent = fileEncrypterDecrypter.decrypt("baz.enc");
-        assertThat(decryptedContent, is(originalContent));
+		byte[] encryptedMessage = encryptServiceImpl.encryptMessage(originalContent.getBytes(), keyBytes);
 
-        new File("baz.enc").delete(); // cleanup
-    }
+		byte[] decryptedMessage = encryptServiceImpl.decryptMessage(encryptedMessage, keyBytes);
+		assertThat(new String(decryptedMessage), is(originalContent));
+	}
 }
