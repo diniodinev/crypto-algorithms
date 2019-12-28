@@ -9,11 +9,8 @@ import java.nio.file.Files;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.springframework.util.ResourceUtils;
 
-@RunWith(JUnit4.class)
 public class EncryptServiceImplTest {
 
 	AesEncryptServiceImpl encryptServiceImpl;
@@ -28,7 +25,7 @@ public class EncryptServiceImplTest {
 	}
 
 	@Test
-	public void encryptAndDecryptFileSuccessfullyWithAes() throws Exception {
+	public void encryptAndDecryptFileSuccessfullyWithAesKeyFromFile() throws Exception {
 		String originalContent = "foobar";
 		file = ResourceUtils.getFile("classpath:certs/aes/aes.key");
 		//Open SSl generate hex encoded key. Which needs to be converted to 
@@ -40,4 +37,6 @@ public class EncryptServiceImplTest {
 		byte[] decryptedMessage = encryptServiceImpl.decryptMessage(encryptedMessage, keyBytes);
 		assertThat(new String(decryptedMessage), is(originalContent));
 	}
+	
+	
 }
